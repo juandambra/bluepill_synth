@@ -1,0 +1,22 @@
+#include "mbed.h"
+#include "FastPWM.h"
+
+//multiple pwm
+
+FastPWM pwm1(A1);
+FastPWM pwm2(A2);
+FastPWM pwm3(A6);
+
+
+int main(){
+  pwm1.period(1/(double)10000);
+  pwm1 = 0.5;
+  // pwm2.period(1/(double)30000);
+  pwm2 = 0.3;
+  pwm3.period(1/(double)20000);
+  pwm3 = 0.7;
+  while(1){
+
+  }
+
+}
