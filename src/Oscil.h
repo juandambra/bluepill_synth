@@ -41,7 +41,6 @@ void incrementPhase()
         phase += phase_increment;
         if (phase >= NUM_TABLE_CELLS-1)
                 phase -= NUM_TABLE_CELLS-1;
-
 }
 
 inline
@@ -49,7 +48,7 @@ float32_t readTable()
 {
         uint16_t indexBase = floor(phase);
         #if (INTERPOLATE == 1)
-        q15_t indexFract = phase - indexBase;
+        float32_t indexFract = phase - indexBase;
         float32_t value1 = table[indexBase];
         float32_t value2 = table[indexBase+1];
         return value1 + ((value2 - value1) * indexFract);
@@ -58,8 +57,8 @@ float32_t readTable()
         #endif
 }
 
-q15_t phase;
-volatile q15_t phase_increment;
+float32_t phase;
+volatile float32_t phase_increment;
 const float32_t * table;
 };
 #endif

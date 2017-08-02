@@ -8,6 +8,7 @@
 #include <tables/tri512_float.h>
 #include "main.h"
 #include "Oscil.h"
+#include "Line.h"
 
 //PWM pin
 FastPWM pwmOut(A2);
@@ -17,16 +18,19 @@ Ticker pwm_ticker;
 Ticker sequencer;
 Ticker control;
 
-float32_t triangle (int x){
-        return ((float32_t)x/(STEPS/2));
-}
+Oscil <SIN512_NUM_CELLS, AUDIO_RATE> aOscil(SQUARE512_DATA);
 
-Oscil <SIN512_NUM_CELLS, AUDIO_RATE> aOscil(SIN512_DATA);
+#define CONTROL_RATE 64
 
-float32_t nextValue = 0;
+Line <float32_t> decay (CONTROL_RATE);
+
+float32_t nextValue = 0.5f;
+float32_t amp=1.0;
+
 void updateAudio(){
   pwmOut = nextValue;
   nextValue = aOscil.next();
+  nextValue *= amp;
 }
 
 void change_note(){
@@ -42,19 +46,24 @@ void change_wavetable(){
 }
 
 void change_control(){
-        change_wavetable();
+        //change_wavetable();
+        amp = decay.next();
 }
+
 
 void setup(){
   aOscil.setFreq(440);
+  decay.set(1.0,0.0,4.0f);
 }
+
+
 
 int main() {
         setup();
         pwmOut.period( 1.0f / (float32_t) PWM_FREQ);
-        pwm_ticker.attach(&updateAudio, 1.0f/ (AUDIO_RATE));
-        sequencer.attach(&change_note,1.0f/(SEQ_TIME));
-        control.attach(&change_control, 0.5);
+        pwm_ticker.attach(&updateAudio, 1.0f/ AUDIO_RATE);
+        //sequencer.attach(&change_note,1.0f/(SEQ_TIME));
+        control.attach(&change_control, 1.0f/CONTROL_RATE);
         while(1) {
         }
 }
