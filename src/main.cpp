@@ -18,7 +18,7 @@ Ticker pwm_ticker;
 Ticker sequencer;
 Ticker control;
 
-Oscil <SIN512_NUM_CELLS, AUDIO_RATE> aOscil(SQUARE512_DATA);
+Oscil <SIN512_NUM_CELLS, AUDIO_RATE> aOscil(SIN512_DATA);
 
 #define CONTROL_RATE 64
 
@@ -28,14 +28,20 @@ float32_t nextValue = 0.5f;
 float32_t amp=1.0;
 
 void updateAudio(){
-  pwmOut = nextValue;
+  pwmOut = (float32_t)nextValue;
   nextValue = aOscil.next();
   nextValue *= amp;
+}
+
+void reset_amp(){
+  decay.set(1.0);
 }
 
 void change_note(){
         float32_t frequency = notes[(rand() % NOTES)];
         aOscil.setFreq(frequency);
+        reset_amp();
+
 }
 
 const float32_t * tables[] = {SQUARE512_DATA,SIN512_DATA,SAW512_DATA,TRI512_DATA,COS512_DATA};
@@ -52,18 +58,19 @@ void change_control(){
 
 
 void setup(){
-  aOscil.setFreq(440);
-  decay.set(1.0,0.0,4.0f);
+  aOscil.setFreq((float32_t)440);
+  decay.set(1.0,0.0,0.2f);
 }
 
 
-
+Ticker wavetable;
 int main() {
         setup();
         pwmOut.period( 1.0f / (float32_t) PWM_FREQ);
         pwm_ticker.attach(&updateAudio, 1.0f/ AUDIO_RATE);
-        //sequencer.attach(&change_note,1.0f/(SEQ_TIME));
+        sequencer.attach(&change_note,1.0f/(SEQ_TIME));
         control.attach(&change_control, 1.0f/CONTROL_RATE);
+        wavetable.attach(&change_wavetable,4.0f);
         while(1) {
         }
 }

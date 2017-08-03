@@ -38,7 +38,6 @@ Line(const uint16_t control) : control_rate(control)
 }
 
 
-
 /** Increments one step along the line.
    @return the next value.
  */
